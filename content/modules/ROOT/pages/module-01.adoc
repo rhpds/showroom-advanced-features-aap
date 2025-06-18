@@ -1,149 +1,68 @@
-= Building an Application with rpms
+# Introduction to Unified UI
 
-== Downloading the UBI
+## Overview
 
-In this lab, you will be installing software into the container 
-image running as an interactive application. To do this you will
-need `yum`, but do not need `systemd` for managing services within the
-container environment.  For that reason, you will be using the *Standard*
-UBI image (as opposed to the Minimal or Multi-service images).
+With Ansible Automation Platform 2.5 we have introduced a new, unified Web UI.
+It provides consistent access to the components of AAP in one interface. 
 
-Using the "buildah from" command will download and meld the container image. This particular image we are using is the Red Hat Universal Base Image or UBI. From the ourput of the command, you will notice that we are pulling down the latest one, which is for RHEL 9. 
+To access the UI, click on the URL {z_ansible_controller_web_ui_url}[window=_blank] to open it in a new browser tab, or in Showroom click on the "AAP" tab.
+Both will take you to the AAP login page:
 
-. Execute the  download the Standard UBI
-image from Red Hat's registry.
+image::aap-login.png[500,300,link=self,window=_blank]
 
-+
-[source,sh,role=execute]
-----
-buildah from registry.access.redhat.com/ubi9/ubi
-----
+Login as user **lab-user** with the password **{z_ansible_controller_admin_password}**. This will open the shiny new UI, let's have a look around.
 
-[#repositories]
-== Installing Repositories
-In this lab, you are going to containerize a software package that is already
-packaged in RPM format and stored in the Extra Packages for Enterprise Linux
-(EPEL) repository.
+TIP: Depending on the width of your browser window the main menu to the left might be hidden. Just click the "Hamburger-style" button in the upper left and it will fold out (see below for more details). Or just resize your browser... ;-)
 
-Software often has requirements for prerequisite software that must be installed
-on the machine for it to work properly.  `yum` will resolve those
-dependencies for you, as long as it can locate the required packages in
-repositories defined on the machine.  The Red Hat Universal Base Image (UBI)
-downloaded in the previous step has access to some Red Hat Enterprise Linux
-repositories.  However, the target package for the lab is from EPEL.  
+The menu lists the main components of AAP, most entries will open sub-menus when clicked, like the **Automation Execution** in this example:
 
-. In the command below, `buildah` is going to run a command on the
-`ubi-working-container` image.  The `--` indicates that the command should be
-executed from within the container, which means the results will be applied into
-the container image.  Lastly, you are providing the `yum` command to install a
-package that defines all of the repositories from EPEL, `epel-release-latest-9`.
+image::aap-ui-menu.png[800,600,link=self,window=_blank]
 
-+
-[source,bash]
-----
-buildah run ubi-working-container -- yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
-----
+When you access the UI, you will start on the **Overview** page which provides information about what's going on in your AAP in a handy dashboard.
+Right now your environment hasn't done anything so this will be pretty empty.
+But we'll of course change this during the course of this lab.
 
+But there is more: if you scroll down, you'll find a section called **Quick Starts**. These are interactive guides to get you started quickly with key Ansible Automation Platform features. This will help introduce new users to Ansible Automation Platform.
 
-. You can verify that the above command did not install the RPM on the host system.
+image::quickstarts.png[800,600,link=self,window=_blank]
 
-+
-[source,bash]
-----
-rpm -q epel-release
-----
+## Menu Items
 
-NOTE: If your repository configurations are not distributed as an RPM, but instead as
-individual `.repo` files, you could use the `buildah copy` command to copy
-files from the host operating system into the container image.  You will see
-an example of using `buildah copy` later in this lab.
+Now let's briefly go through the other menu items:
 
-[#software]
-== Installing Software
+* **Automation Execution**: This was formerly named Automation Controller, it is the main control center of your automation.
+This is where you manage automation jobs.
 
+* **Automation Decisions** is the UI component of the AAP Event Driven Automation (EDA) functionality.
+There you can create event triggers to automatically start your automation.
 
-. Now that the yum repositories are defined within the container, execute 
-another `yum install`, within the container, to install the target
-software: `moon-buggy`.
+* **Automation Content** unifies the Private Automation Hub into the UI, so that you can manage reusable automation content, like container images (Execution and Decision Environments) and Ansible collections.
 
-+
-[source,bash]
-----
-buildah run ubi-working-container -- yum -y install moon-buggy
-----
+* **Automation Analytics** provides access to the Automation Calculator, Host Metrics and the usage of the AAP subscriptions.
 
+* **Access Management** holds the management of the RBAC (Role Based Access Control) system to control access to AAP.
+This is where you will manage organizations, teams, roles and users; we'll come back to it.
 
-== Committing the Container Image
+* **Ansible Lightspeed** is providing a link to get started with generative AI for AAP automation code.
 
-. At this point, the container is configured.  It is time to transition from a
-working container into a committed image.  In the command below, you will use
-the `buildah` command to commit the working container to an image called:
-`moon-buggy`.
+* And finally **Settings** for configuring AAP.
 
-+
-[source,bash]
-----
-buildah commit ubi-working-container moon-buggy
-----
+The new UI is not only eye-candy, the main change is hidden: all traffic to the UI components now goes through a single entry point called **Platform Gateway**.
+It handles authentication and authorization for the Ansible Automation Platform and serves the platform user interface.
 
-+
-. The output of `podman image list` should confirm the image was created.
+Now that you know your way around, go ahead and proceed to the next chapter!
 
-+
-[source,bash]
-----
-podman image list
-----
+== Ah wait, before we let you go!
 
+The new interface is reactive, meaning it changes its appearance depending on the width of your screen.
+The next picture shows two screenshots of the UI, from a wide screen on the left, and a narrow one on the right:
 
-== Deploy the Container
+.Wide and narrow screens side by side
+image::narrow_screen.png[Wide and narrow screens side by side,link=self,window=_blank]
 
-Now the software has been installed and a new container image created.  It is
-time to spawn a runtime of the container image and validate the software.  The
-software we are using is a command line command.  
+Two main things are to be noted:
 
-. When you `run` the container,
-it will be in interactive (`-it`) mode, based on the `moon-buggy` container
-image and the command run interactively will be `/usr/bin/moon-buggy`.
+. When we refer to the left hand navigation menu, it might be hidden behind the hamburger menu (both highlighted in green)
+. When we refer to a blue button, it might be hidden behind the 3 dots menu (highlighted in red)
 
-+
-[source,bash]
-----
-podman run -it moon-buggy /usr/bin/moon-buggy
-----
-
-+
-[source,textinfo]
-----
-
-<<< OUTPUT ABRIDGED >>>
-               MM     MM   OOOOO    OOOOO   NN     N
-               M M   M M  O     O  O     O  N N    N
-               M  M M  M  O     O  O     O  N  N   N
-               M   M   M  O     O  O     O  N   N  N
-               M       M  O     O  O     O  N    N N
-               M       M   OOOOO    OOOOO   N     NN
-
-                     BBBBBB   U     U   GGGGG    GGGGG   Y     Y
-                     B     B  U     U  G     G  G     G   Y   Y
-                     BBBBBB   U     U  G        G          Y Y
-                     B     B  U     U  G   GGG  G   GGG     Y
-                     B     B  U     U  G     G  G     G    Y
-                     BBBBBB    UUUUU    GGGGG    GGGGG   YY
-
-<<< OUTPUT ABRIDGED >>>
-----
-
-. You can now play the Moon Buggy game, which is a text-based version of the
-popular Moon Patrol.  When you are finished, use the `q` command to quit the
-game, which will terminate the container.
-
-+
-Alternatively, you can use `podman` to kill the running container from
-*Terminal 2*.
-
-+
-[source,bash]
-----
-podman kill $(podman ps | grep -v CONTAINER | cut -f1 -d" " )
-----
+Now, you're ready for the lab!

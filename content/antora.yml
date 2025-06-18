@@ -1,19 +1,38 @@
 name: modules
-title: Default Title
+title: Introduction
 version: master
 nav:
   - modules/ROOT/nav.adoc
 
 asciidoc:
-  attributes:
-    lab_name: "I'm the lab_name var"
-    release-version: master
+  attributes:  # keep in alphabetical order where meaningful
+    lab_name: "LB1706 - advanced features of AAP automation controller"
     page-pagination: true
-    my_var: "foo"
-    guid: my-guid
-    ssh_user: devops
-    ssh_password: devops
-    ssh_command: ssh someone@example.com
-    page-links:
-    - url: https://redhat.com
-      text: Red Hat
+    release-version: master
+    # variables taken from rendered showroom (name could be more explicit)
+    nginx_web_url: aap.MYGUID.sandboxMYSANDBOX.opentlc.com
+    targethost: bastion.MYGUID.sandboxMYSANDBOX.opentlc.com
+    # variables which should come from the lab but don't yet
+    gitea_web_ui_port: 488
+    lab_password: MYPASSWORD
+    lab_username: MYUSER
+    vscode_web_ui_port: 8443
+    # variables added manually for LB1706/2025, could come from the lab
+    node1_hostname: node1.example.com
+    node2_hostname: node2.example.com
+    gitea_controller_project: playbooks-adv-controller
+    # variables from previous versions, recreated from the above ones
+    # name starts with z_ to sort after the variables they depend on
+    z_ansible_controller_admin_password: "{lab_password}"
+    z_ansible_controller_admin_username: "{lab_username}"
+    z_ansible_controller_web_ui_url: "https://{nginx_web_url}"
+    z_bastion_host_name: "{targethost}"
+    z_bastion_ssh_user_name: "{lab_username}"
+    z_gitea_web_ui_url: "https://{targethost}:{gitea_web_ui_port}"
+    z_gitea_web_ui_username: "{lab_username}"
+    z_gitea_web_ui_password: "{lab_password}"
+    z_private_automation_hub_url: "https://{nginx_web_url}"
+    z_ssh_user: "{lab_username}"
+    z_ssh_password: "{lab_password}"
+    z_vscode_web_ui_password: "{lab_password}"
+    z_vscode_web_ui_url: "https://{targethost}:{vscode_web_ui_port}"
